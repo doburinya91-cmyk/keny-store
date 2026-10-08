@@ -1,5 +1,22 @@
 {
-  "store": "Keny Store",
-  "updated": "2026-10-08",
-  "games": []
+    "store":  "Keny Store",
+    "updated":  "2026-10-08",
+    "games":  [
+                  {
+                      "id":  "com.kenyht.neon89",
+                      "name":  "VELVET JAY",
+                      "version":  "0.1",
+                      "versionCode":  1,
+                      "size":  4.6,
+                      "tagline":  "Хотлайн-экшен с видом сверху в неоновом Майами 1989-го",
+                      "description":  "Джей: белый костюм, бита и очень плохой день. Неоновый Майами, лето 1989, вид сверху. Бей, стреляй из пистолета, уклоняйся и иди напролом через главы — от «Розового отеля» и дальше. Управление под палец: джойстик слева, огонь и бросок справа. Между главами — звонки и голос в трубке. Игра бесплатная, работает без интернета и без регистрации.",
+                      "icon":  "https://doburinya91-cmyk.github.io/keny-store/icons/com.kenyht.neon89.png",
+                      "screenshots":  [
+                                          "https://doburinya91-cmyk.github.io/keny-store/screenshots/com.kenyht.neon89/1.jpg",
+                                          "https://doburinya91-cmyk.github.io/keny-store/screenshots/com.kenyht.neon89/2.jpg",
+                                          "https://doburinya91-cmyk.github.io/keny-store/screenshots/com.kenyht.neon89/3.jpg"
+                                      ],
+                      "apk":  "https://github.com/doburinya91-cmyk/keny-store/releases/download/com.kenyht.neon89/velvet-jay.apk"
+                  }
+              ]
 }
