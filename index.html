@@ -52,6 +52,9 @@
   .meta { color: #4f8cff; font-size: 12px; margin-top: 6px; }
   .shots { display: flex; gap: 8px; margin-top: 12px; overflow: hidden; }
   .shots img { width: 62px; height: 134px; border-radius: 8px; object-fit: cover; object-position: top; flex-shrink: 0; background: #262a38; }
+  .shots video { width: 62px; height: 134px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #000; }
+  .player { margin-top: 14px; border: 1px solid #2b3145; border-radius: 12px; overflow: hidden; background: #000; }
+  .player video { display: block; width: 100%; max-height: 62vh; background: #000; }
   .btn {
     display: inline-block;
     background: #4f8cff;
@@ -133,7 +136,7 @@ fetch('catalog.json')
             <div class="meta">v${esc(g.version)}${g.size ? ' · ' + esc(g.size) + ' МБ' : ''}</div>
           </div>
         </div>
-        ${shots(g, 3)}
+        ${shots(g, 3, true)}
         <a class="btn" href="${url(g.apk)}" onclick="event.stopPropagation()">Скачать APK</a>
       </div>`).join('') + '</div>';
   })
@@ -142,11 +145,19 @@ fetch('catalog.json')
       '<div class="error">Не удалось загрузить каталог.<br>Проверьте интернет и обновите страницу.</div>';
   });
 
-function shots(g, max) {
+function shots(g, max, withVideo) {
   const s = g.screenshots || [];
-  if (!s.length) return '';
-  return '<div class="shots">' + s.slice(0, max).map(u =>
+  const v = (withVideo && g.video)
+    ? `<video src="${url(g.video)}" muted loop autoplay playsinline preload="metadata"></video>` : '';
+  if (!s.length && !v) return '';
+  return '<div class="shots">' + v + s.slice(0, max).map(u =>
     `<img src="${url(u)}" alt="" loading="lazy" onerror="this.remove()">`).join('') + '</div>';
+}
+
+function player(g) {
+  if (!g.video) return '';
+  const poster = (g.screenshots && g.screenshots[0]) ? `poster="${url(g.screenshots[0])}"` : '';
+  return `<div class="player"><video src="${url(g.video)}" ${poster} controls autoplay muted loop playsinline preload="metadata"></video></div>`;
 }
 
 function openGame(i) {
@@ -161,13 +172,18 @@ function openGame(i) {
       </div>
     </div>
     ${g.tagline ? '<div class="tag">' + esc(g.tagline) + '</div>' : ''}
+    ${player(g)}
     ${shots(g, 20).replace('class="shots"', 'class="gal"')}
     <div class="full">${esc(g.description || '')}</div>
     <a class="btn" href="${url(g.apk)}">Скачать APK</a>`;
   document.getElementById('modal').classList.add('open');
 }
 
-function closeGame() { document.getElementById('modal').classList.remove('open'); }
+function closeGame() {
+  // ролик за закрытой карточкой продолжал бы играть звук и жрать трафик
+  document.querySelectorAll('#sheet video').forEach(v => v.pause());
+  document.getElementById('modal').classList.remove('open');
+}
 document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeGame(); });
 
 function url(u) { return u ? String(u).replace(/"/g, '&quot;') : 'icon.png'; }

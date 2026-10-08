@@ -11,6 +11,7 @@ param(
     [string]$Tagline = "",
     [string]$Description = "",
     [string]$Screenshots = "",
+    [string]$Video = "",
     [switch]$DryRun
 )
 $ErrorActionPreference = "Stop"
@@ -108,6 +109,20 @@ if ($Screenshots) {
     Write-Host "Скриншотов: $($shotUrls.Count)" -ForegroundColor Cyan
 }
 
+# --- промо-видео (необязательно): лежит в репозитории, играется прямо на витрине ---
+$videoUrl = ""
+if ($Video) {
+    $videoPath = (Resolve-Path $Video).Path
+    $mb = [math]::Round((Get-Item $videoPath).Length / 1MB, 1)
+    if ($mb -gt 15) { Write-Host "Видео $mb МБ — витрина с ним грузится медленно. Сожми через ffmpeg." -ForegroundColor Yellow }
+    $videosDir = Join-Path $repoRoot "videos"
+    if (-not (Test-Path $videosDir)) { New-Item -ItemType Directory -Path $videosDir | Out-Null }
+    $videoExt = [IO.Path]::GetExtension($videoPath)
+    Copy-Item $videoPath (Join-Path $videosDir "$id$videoExt") -Force
+    $videoUrl = "$pagesBase/videos/$id$videoExt"
+    Write-Host "Видео: $videoUrl ($mb МБ)" -ForegroundColor Cyan
+}
+
 Write-Host ""
 Write-Host "Игра:    $label ($id)" -ForegroundColor Green
 Write-Host "Версия:  $versionName (code $versionCode)"
@@ -147,6 +162,11 @@ if ($entry) {
     if ($Tagline)     { $entry.tagline     = $Tagline }
     if ($iconUrl)     { $entry.icon        = $iconUrl }
     if ($shotUrls.Count) { $entry.screenshots = $shotUrls }
+    if ($videoUrl) {
+        # в старой записи поля video может не быть — заводим его
+        if ($entry.PSObject.Properties['video']) { $entry.video = $videoUrl }
+        else { $entry | Add-Member -NotePropertyName video -NotePropertyValue $videoUrl }
+    }
     $entry.apk = $apkUrl
     Write-Host "Игра уже была в каталоге — обновил запись." -ForegroundColor Green
 } else {
@@ -160,6 +180,7 @@ if ($entry) {
         description = $Description
         icon        = $iconUrl
         screenshots = $shotUrls
+        video       = $videoUrl
         apk         = $apkUrl
     }
     $games += $entry
@@ -172,7 +193,7 @@ $catalog.updated = Get-Date -Format "yyyy-MM-dd"
 
 # --- пушим: GitHub Pages сам пересоберёт витрину за ~1 минуту ---
 Write-Host "Пушу на GitHub..." -ForegroundColor Cyan
-git -C $repoRoot add catalog.json icons screenshots 2>$null
+git -C $repoRoot add catalog.json icons screenshots videos 2>$null
 $dirty = git -C $repoRoot status --porcelain
 if ($dirty) {
     git -C $repoRoot commit -m "$label v$versionName" | Out-Null
