@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keny Store</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f1117;
+    color: #e6e8ee;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 28px 20px 20px;
+    text-align: center;
+  }
+  header h1 { font-size: 28px; letter-spacing: 0.5px; }
+  header h1 span { color: #4f8cff; }
+  header p { color: #9aa0b0; margin-top: 6px; font-size: 14px; }
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 16px 32px;
+  }
+  #updated { color: #6b7180; font-size: 12px; margin-bottom: 12px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: #1a1d27;
+    border: 1px solid #262a38;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .card img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: #262a38;
+  }
+  .info { flex: 1; min-width: 0; }
+  .info h2 { font-size: 16px; margin-bottom: 2px; word-wrap: break-word; }
+  .ver { color: #4f8cff; font-size: 12px; margin-bottom: 6px; }
+  .desc { color: #9aa0b0; font-size: 13px; line-height: 1.4; margin-bottom: 10px; word-wrap: break-word; }
+  .btn {
+    display: inline-block;
+    background: #4f8cff;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 18px;
+    border-radius: 8px;
+  }
+  .btn:active { background: #3a6fd4; }
+  .empty, .error {
+    text-align: center;
+    color: #9aa0b0;
+    padding: 60px 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  footer {
+    color: #6b7180;
+    font-size: 12px;
+    text-align: center;
+    padding: 16px;
+    border-top: 1px solid #1e2230;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Keny <span>Store</span></h1>
+  <p>Личный магазин игр — скачивай и играй</p>
+</header>
+<main>
+  <div id="updated"></div>
+  <div id="list"><div class="empty">Загрузка каталога…</div></div>
+</main>
+<footer>При первой установке разрешите браузеру «установку из неизвестных источников».</footer>
+<script>
+fetch('catalog.json')
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(cat => {
+    document.getElementById('updated').textContent = 'Обновлено: ' + (cat.updated || '—');
+    const list = document.getElementById('list');
+    if (!cat.games || cat.games.length === 0) {
+      list.innerHTML = '<div class="empty">Пока пусто.<br>Первые игры скоро появятся.</div>';
+      return;
+    }
+    list.innerHTML = '<div class="grid">' + cat.games.map(g => `
+      <div class="card">
+        <img src="${g.icon || 'icon.png'}" alt="" onerror="this.style.visibility='hidden'">
+        <div class="info">
+          <h2>${esc(g.name)}</h2>
+          <div class="ver">v${esc(g.version)}</div>
+          <div class="desc">${esc(g.description || '')}</div>
+          <a class="btn" href="${g.apk}">Скачать APK</a>
+        </div>
+      </div>`).join('') + '</div>';
+  })
+  .catch(() => {
+    document.getElementById('list').innerHTML =
+      '<div class="error">Не удалось загрузить каталог.<br>Проверьте интернет и обновите страницу.</div>';
+  });
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>
