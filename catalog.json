@@ -1,6 +1,15 @@
 {
     "store":  "Keny Store",
     "updated":  "2026-10-08",
+    "app":  {
+                "id":  "ru.keny.keny_store",
+                "name":  "Keny Store",
+                "version":  "1.0",
+                "versionCode":  1,
+                "size":  50.4,
+                "site":  "https://doburinya91-cmyk.github.io/keny-store/",
+                "apk":  "https://github.com/doburinya91-cmyk/keny-store/releases/download/ru.keny.keny_store/keny-store.apk"
+            },
     "games":  [
                   {
                       "id":  "com.kenyht.neon89",

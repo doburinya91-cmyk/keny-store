@@ -20,6 +20,20 @@
   header p { color: #9aa0b0; margin-top: 6px; font-size: 14px; }
   main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 12px 16px 32px; }
   #updated { color: #6b7180; font-size: 12px; margin-bottom: 12px; }
+  .appbox {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: #16203a;
+    border: 1px solid #2b3550;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .appbox.show { display: flex; }
+  .appbox .t { flex: 1; min-width: 0; }
+  .appbox .t b { font-size: 15px; }
+  .appbox .t div { color: #9aa0b0; font-size: 12.5px; margin-top: 3px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
   .card {
     background: #1a1d27;
@@ -79,6 +93,7 @@
 </header>
 <main>
   <div id="updated"></div>
+  <div id="appbox" class="appbox"></div>
   <div id="list"><div class="empty">Загрузка каталога…</div></div>
 </main>
 <footer>При первой установке разрешите браузеру «установку из неизвестных источников».</footer>
@@ -91,6 +106,17 @@ fetch('catalog.json')
   .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(cat => {
     document.getElementById('updated').textContent = 'Обновлено: ' + (cat.updated || '—');
+    const app = cat.app;
+    if (app && app.apk) {
+      const box = document.getElementById('appbox');
+      box.innerHTML = `
+        <div class="t">
+          <b>Телефонное приложение Keny Store</b>
+          <div>v${esc(app.version || '1.0')}${app.size ? ' · ' + Number(app.size).toFixed(1) + ' МБ' : ''} · для Android</div>
+        </div>
+        <a class="btn" href="${url(app.apk)}">Скачать магазин</a>`;
+      box.classList.add('show');
+    }
     games = cat.games || [];
     const list = document.getElementById('list');
     if (!games.length) {
