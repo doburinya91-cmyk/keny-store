@@ -196,7 +196,9 @@ Write-Host "Пушу на GitHub..." -ForegroundColor Cyan
 # Git Credential Manager иначе висит окном логина и не отдаёт управление gh-хелперу
 $env:GCM_INTERACTIVE = "never"
 $env:GIT_TERMINAL_PROMPT = "0"
-git -C $repoRoot add catalog.json icons screenshots videos 2>$null
+$toAdd = @('catalog.json', 'icons', 'screenshots')
+if (Test-Path (Join-Path $repoRoot 'videos')) { $toAdd += 'videos' }
+git -C $repoRoot add @toAdd 2>$null
 $dirty = git -C $repoRoot status --porcelain
 if ($dirty) {
     git -C $repoRoot commit -m "$label v$versionName" | Out-Null
